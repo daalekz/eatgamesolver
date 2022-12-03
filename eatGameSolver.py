@@ -10,11 +10,10 @@ import math
 #and then sort it
 #effective dollars per second = ($/s)*n
 
-#stretch goal map the edps curve for each 
+#stretch goal map the edps curve for each unitMultiplexer
 
-units = ["", "k", "m", "b", "t"]
-#we could just make a function that uses it as a string and adds 3 0's each iteration but nah. I have to add the units manually anyway
-unitMultiplexer = [1, 1000, 1000000, 1000000000, 1000000000000]
+units = ["", "k", "m", "b", "t", "aa", "ab", "ac", "ad", "ae", "af"]
+# unitMultiplexer = [1, 3, 6, 9, 12, 13, 15, 18, 21, 23]
 
 def getUnit(target):
     #if its a number with no unit attached (between 1-1000)
@@ -33,7 +32,12 @@ def normalise(targetString, unitIndex):
     if (unitIndex != 0): #or if targetstring.isAlpha. the same thing really but the digit comparison is faster 
         parsedString = parsedString[0:len(parsedString)-1]
     tofloat = float(parsedString)
-    return tofloat * unitMultiplexer[unitIndex]
+    return tofloat * powIndex(unitIndex)
+
+def powIndex(unitIndex):
+    if (unitIndex == 0):
+        return 1
+    return pow(10, unitIndex * 3)
 
 def getEdps(fullNumber, quantity, time):
     result = (fullNumber/time) * quantity
@@ -51,7 +55,7 @@ def tests():
 def main():
     # tests()
     data = [ #moon data
-        ["lettuce", 3, "13.1m", 7.5],
+        ["lettuce", 1, "12k", 1.2],
         ["coconut", 3, "20.5m", 12.5],
         ["carrot", 2, "14.9m", 35],
     ]
@@ -65,13 +69,18 @@ def main():
         results.append([data[i][0], edps])
         i += 1
 
+    results.sort(reverse = True, key=sortFunc)
     prettyPrint(results)
+
+def sortFunc(d):
+    return d[1]
 
 def alignItem(data, width, padding):
     returnString = ""
     rightPadding = ""
     i = 0
-    while (i < (width-len(data))): # there will be a way to push to a string x number of times without a while loop
+    # surely there will be a way to push to a string x number of times without a while loop
+    while (i < (width-len(data))): 
         rightPadding += " "
         i += 1
     
