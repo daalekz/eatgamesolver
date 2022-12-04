@@ -11,10 +11,9 @@ import re
 #and then sort it
 #effective dollars per second = ($/s)*n
 
-#stretch goal map the edps curve for each unitMultiplexer
+#stretch goal map the edps/cost curve for each food
 
 units = ["", "k", "m", "b", "t", "aa", "ab", "ac", "ad", "ae", "af"]
-# unitMultiplexer = [1, 3, 6, 9, 12, 13, 15, 18, 21, 23]
 
 def getUnit(target):
     #if its a number with no unit attached (between 1-1000)
@@ -74,38 +73,38 @@ def main():
         results.append([data[i][0], edps])
         i += 1
 
-    results.sort(reverse = True, key=sortFunc)
+    results.sort(reverse = True, key= lambda d: sortFunc(d, 1))
     prettyPrint(results)
 
-def sortFunc(d):
-    return d[1]
+def sortFunc(d, x):
+    return d[x]
+
+def lenFunc(d, x):
+    return len(d[x].__str__())
 
 def alignItem(data, width, padding):
     returnString = ""
     rightPadding = ""
     i = 0
-    # surely there will be a way to push to a string x number of times without a while loop
-    while (i < (width-len(data))): 
-        rightPadding += " "
-        i += 1
-    
+
+    rightPadding = " " * (width-len(data)) #concat to string n times
+
     returnString = (padding + data + rightPadding + padding)
     return returnString
 
 def prettyPrint(data):
-    
-    width = 10
+    #clean these two colwidths up.
+    #returns length of longest entry in the list + 3
+    col1Width = len(max(data, key=lambda d: lenFunc(d, 0))[0].__str__()) + 3
+    col2Width = len(max(data, key=lambda d: lenFunc(d, 1))[1].__str__()) + 3
     padding = "  "
     
     #header
-    header = alignItem("Name", width, padding) + "|" + alignItem("EDPS", width, padding) + "|"
+    header = alignItem("Name", col1Width, padding) + "|" + alignItem("EDPS", col2Width, padding) + "|"
     i = 0
 
     #Horizontal rule
-    hr = ""
-    while (i < len(header)):
-        hr += "-"
-        i += 1
+    hr = "-" * len(header)
 
     print (header)
     print (hr)
@@ -116,8 +115,8 @@ def prettyPrint(data):
         tempresult = ""
         line = data[i]
 
-        tempresult = alignItem(line[0], width, padding) + "|"
-        tempresult += alignItem(line[1].__str__(), width, padding) + "|"
+        tempresult = alignItem(line[0], col1Width, padding) + "|"
+        tempresult += alignItem(line[1].__str__(), col2Width, padding) + "|"
         print (tempresult)
         i += 1
     
