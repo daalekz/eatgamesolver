@@ -1,4 +1,5 @@
 import math
+import re
 #given input arrays of format:
 #name quantity dollarsUnits timePeriod in seconds 
 #eg
@@ -19,18 +20,18 @@ def getUnit(target):
     #if its a number with no unit attached (between 1-1000)
     if (target.isalpha()):
         return 0
-    i = 1
-    while (i < len(units)):
+    i = len(units) - 1
+    while (i > 1): #we go backwards so we can use "endswith". units should (?) keep getting longer the higher we go. if they get smaller but share latters with other entries (eg input of af when ["af", "q", "aff"]). will probably need to do a regex split then find it.
         if (target.endswith(units[i])):
             return i;
             break;
         else:
-            i += 1
+            i -= 1
 
 def normalise(targetString, unitIndex):
     parsedString = targetString
     if (unitIndex != 0): #or if targetstring.isAlpha. the same thing really but the digit comparison is faster 
-        parsedString = parsedString[0:len(parsedString)-1]
+        parsedString = parsedString[0:len(parsedString)-len(units[unitIndex])]
     tofloat = float(parsedString)
     return tofloat * powIndex(unitIndex)
 
@@ -41,7 +42,7 @@ def powIndex(unitIndex):
 
 def getEdps(fullNumber, quantity, time):
     result = (fullNumber/time) * quantity
-    return result.__floor__()
+    return result
 
 def tests():
     testString = "343k"
@@ -55,9 +56,13 @@ def tests():
 def main():
     # tests()
     data = [ #moon data
-        ["lettuce", 1, "12k", 1.2],
-        ["coconut", 3, "20.5m", 12.5],
-        ["carrot", 2, "14.9m", 35],
+        ["lettuce", 4, "82.8aa", 3.8],
+        ["coconut", 3, "121aa", 6.3],
+        ["carrot", 4, "371aa", 8.8],
+        ["pepper", 3, "53.6aa", 22.5],
+        ["orange", 3, "576aa", 27.5],
+        ["mushroom", 2, "1.05ab", 32.5],
+        ["banana", 2, "33.2ab", 75]
     ]
     
     i = 0
