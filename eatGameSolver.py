@@ -1,19 +1,19 @@
 import math
 import re
 #given input arrays of format:
-#name quantity dollarsUnits timePeriod in seconds 
+#name, quantity, dollarsUnits, timePeriod in seconds, level
 #eg
-#["bread", 3, "1.3k", "1.3"]
-#["cakes", 2, "3.1m", "32"]
-#["milkshakes", 1, "12t", "45"]
-#["tea", 1, "1.8m", "26"]
+#["bread", 3, "1.3k", 1.3, 2]
+#["cakes", 2, "3.1m", 32, 250]
+#["milkshakes", 1, "12t", 45, 152]
+#["tea", 1, "1.8m", 26, 71]
 #produce an "effective $/s" metric
 #and then sort it
 #effective dollars per second = ($/s)*n
 
 #stretch goal map the edps/cost curve for each food
 
-units = ["", "k", "m", "b", "t", "aa", "ab", "ac", "ad", "ae", "af"]
+units = ["", "k", "m", "b", "t", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al"]
 
 def getUnit(target):
     #if its a number with no unit attached (between 1-1000)
@@ -29,7 +29,7 @@ def getUnit(target):
 
 def normalise(targetString, unitIndex):
     parsedString = targetString
-    if (unitIndex != 0): #or if targetstring.isAlpha. the same thing really but the digit comparison is faster 
+    if (unitIndex != 0): #or if targetstring.isAlpha. the same thing really but the digit comparison is probably faster
         parsedString = parsedString[0:len(parsedString)-len(units[unitIndex])]
     tofloat = float(parsedString)
     return tofloat * powIndex(unitIndex)
@@ -55,13 +55,18 @@ def tests():
 def main():
     # tests()
     data = [ #moon data
-        ["lettuce", 4, "82.8aa", 3.8],
-        ["coconut", 3, "121aa", 6.3],
-        ["carrot", 4, "371aa", 8.8],
-        ["pepper", 3, "53.6aa", 22.5],
-        ["orange", 3, "576aa", 27.5],
-        ["mushroom", 2, "1.05ab", 32.5],
-        ["banana", 2, "33.2ab", 75]
+        ["Limestone", 4, "6.25ah", 2.2, 764],
+        ["Coal", 4, "980ag", 3.8, 701],
+        ["Iron", 4, "1.13ah", 5.5, 625],
+        ["Copper", 4, "141ag", 7.2, 562],
+        ["Sulphur", 4, "20.8ah", 8.8, 540],
+        ["Sapphire", 4, "3.47ah", 13.8, 343],
+        ["Gold", 4, "2.06ah", 10.5, 462],
+        ["Jade", 4, "1.62ah", 12.2, 402],
+        ["Ruby", 4, "1.16ah", 15.5, 269],
+        ["Amethyst", 4, "4.18ah", 17.2, 222],
+        ["Diamond", 3, "8.92ah", 18.8, 163],
+        ["Obsidian", 3, "88.8ah", 20.5, 115],
     ]
     
     i = 0
@@ -70,7 +75,9 @@ def main():
         unitIndex = getUnit(data[i][2])
         fullDollars = normalise(data[i][2], unitIndex)
         edps = getEdps(fullDollars, data[i][1], data[i][3])
-        results.append([data[i][0], edps])
+        formattedEdps = f"{int(edps):.3E}"
+        formattedEdpsLevel = f"{int(edps/data[i][4]):.3E}"
+        results.append([data[i][0], edps, edps/data[i][4], formattedEdps, formattedEdpsLevel])
         i += 1
 
     results.sort(reverse = True, key= lambda d: sortFunc(d, 1))
@@ -96,11 +103,13 @@ def prettyPrint(data):
     #clean these two colwidths up.
     #returns length of longest entry in the list + 3
     col1Width = len(max(data, key=lambda d: lenFunc(d, 0))[0].__str__()) + 3
-    col2Width = len(max(data, key=lambda d: lenFunc(d, 1))[1].__str__()) + 3
+    col2Width = len(max(data, key=lambda d: lenFunc(d, 3))[3].__str__()) + 3
+    col3Width = len(max(data, key=lambda d: lenFunc(d, 4))[4].__str__()) + 3
+    
     padding = "  "
     
     #header
-    header = alignItem("Name", col1Width, padding) + "|" + alignItem("EDPS", col2Width, padding) + "|"
+    header = alignItem("Name", col1Width, padding) + "|" + alignItem("EDPS", col2Width, padding) + "|" + alignItem("EDPS/Level", col3Width, padding) + "|"
     i = 0
 
     #Horizontal rule
@@ -116,10 +125,11 @@ def prettyPrint(data):
         line = data[i]
 
         tempresult = alignItem(line[0], col1Width, padding) + "|"
-        tempresult += alignItem(line[1].__str__(), col2Width, padding) + "|"
+        tempresult += alignItem(line[3].__str__(), col2Width, padding) + "|"
+        tempresult += alignItem(line[4].__str__(), col3Width, padding) + "|"
+
         print (tempresult)
         i += 1
     
     print(hr)
-
 main()
